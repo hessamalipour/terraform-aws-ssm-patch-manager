@@ -86,6 +86,12 @@ variable "scan_maintenance_window_schedule" {
   default     = "cron(0 0 18 ? * WED *)"
 }
 
+variable "s3_bucket_prefix_scan_logs" {
+  description = "The Amazon S3 bucket subfolder"
+  type        = string
+  default     = "scaning"
+}
+
 variable "task_scan_priority" {
   description = "The priority of the task in the Maintenance Window, the lower the number the higher the priority. Tasks in a Maintenance Window are scheduled in priority order with tasks that have the same priority scheduled in parallel. Default 1"
   type        = number
@@ -225,4 +231,16 @@ variable "ssm_bucket_versioning_enable" {
   type        = string
   description = "To enable or disable S3 bucket versioning for the log bucket."
   default     = true
+}
+
+variable "resource_type" {
+  description = "The type of target being registered with the Maintenance Window. Possible values are INSTANCE and RESOURCE_GROUP"
+  type        = string
+  default     = "INSTANCE"
+}
+
+variable "approved_patches_enable_non_security" {
+  description = "Indicates whether the list of approved patches includes non-security updates that should be applied to the instances. Applies to Linux instances only"
+  type        = bool
+  default     = false
 }

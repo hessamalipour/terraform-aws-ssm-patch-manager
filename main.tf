@@ -53,7 +53,7 @@ resource "aws_ssm_maintenance_window_task" "task_scan_patches" {
         values = ["NoReboot"]
       }
       output_s3_bucket     = local.bucket_id
-      output_s3_key_prefix = "scaning"
+      output_s3_key_prefix = var.s3_bucket_prefix_scan_logs
       service_role_arn     = var.sns_notification_role_arn
 
       dynamic "notification_config" {
@@ -71,7 +71,7 @@ resource "aws_ssm_maintenance_window_task" "task_scan_patches" {
 resource "aws_ssm_maintenance_window_target" "target_scan" {
   count         = local.enabled ? 1 : 0
   window_id     = aws_ssm_maintenance_window.scan_window[0].id
-  resource_type = "INSTANCE"
+  resource_type = var.resource_type
 
   dynamic "targets" {
     for_each = toset(var.scan_maintenance_windows_targets)
@@ -153,7 +153,7 @@ resource "aws_ssm_maintenance_window_task" "task_install_patches" {
 resource "aws_ssm_maintenance_window_target" "target_install" {
   count         = local.enabled ? 1 : 0
   window_id     = aws_ssm_maintenance_window.install_window[0].id
-  resource_type = "INSTANCE"
+  resource_type = var.resource_type
 
   dynamic "targets" {
     for_each = toset(var.install_maintenance_windows_targets)
@@ -179,9 +179,10 @@ resource "aws_ssm_patch_baseline" "baseline" {
   description      = "${var.operating_system} baseline"
   operating_system = var.operating_system
 
-  approved_patches                  = var.approved_patches
-  rejected_patches                  = var.rejected_patches
-  approved_patches_compliance_level = var.approved_patches_compliance_level
+  approved_patches                     = var.approved_patches
+  rejected_patches                     = var.rejected_patches
+  approved_patches_compliance_level    = var.approved_patches_compliance_level
+  approved_patches_enable_non_security = var.approved_patches_enable_non_security
 
   dynamic "approval_rule" {
     for_each = toset(var.patch_baseline_approval_rules)
